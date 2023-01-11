@@ -18,6 +18,7 @@ const commentRoutes = require('./routes/comment');
 
 
 // mongo DB
+mongoose.set("strictQuery", false);
 mongoose.connect(process.env.MONGO_SECRET,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
