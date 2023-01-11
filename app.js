@@ -15,19 +15,15 @@ const auth = require('./middleware/auth');
 const userRoutes = require('./routes/user');
 const blogRoutes = require('./routes/blog');
 const commentRoutes = require('./routes/comment');
+const BlogModel = require("./models/blog");
 
 
 // mongo DB
-mongoose.set("strictQuery", false);
 mongoose.connect(process.env.MONGO_SECRET,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
-
-
-  const BlogModel = require("./models/blog");
-
 
 
 // create server with socket.io on port 5001

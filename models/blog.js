@@ -7,19 +7,8 @@ const BlogModel = new Schema({
     category: {type: String},
     _id: String,
     data: Object,
-    // message: {type: String},
     imageUrl: {type: String},
     published: {type: Boolean, default: false}
-    // comments: {
-    //   type: [
-    //     {
-    //       commenterId: String,
-    //       commenterFirstName: String,
-    //       text: String,
-    //       timestamp: Number,
-    //     },
-    //   ],
-    // },
   },
   {
     timestamps: true,
