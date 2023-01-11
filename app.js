@@ -27,7 +27,7 @@ mongoose.connect(process.env.MONGO_SECRET,
 
 
 // create server with socket.io on port 5001
-const io = require("socket.io")(process.env.PORT_SOCKETIO, {
+const io = require("socket.io").listen("5001", {
   cors: {
     origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
