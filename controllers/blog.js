@@ -3,6 +3,10 @@ const ObjectID = require("mongoose").Types.ObjectId;
 const fs = require('fs');
 
 
+
+  
+
+
 exports.getAllBlogs = (req, res, next) => {
    
     BlogModel.find().sort({ createdAt: -1 })
@@ -21,27 +25,24 @@ exports.getOneBlog = (req, res, next) => {
 
     BlogModel.findOne({ _id: req.params.id })
         .then(blog => res.status(200).json(blog))
-        .catch(error => res.status(404).json({ error }));
+        .catch(error => res.status(200).json({ error }));
 }    
 
 exports.addBlog = (req, res, next) => {
-    
-    const blogObject =  req.file ? {
-        ...req.body,
-        imageUrl: req.file !== null ? "uploads/articles/" + `${req.file.filename}` : "",
-    } : { ...req.body };
 
-    const blog = new BlogModel({
-        ...blogObject
-    });
-    
-    if (res.auth.isAdmin === true) {
-    blog.save()
-        .then(() => { res.status(201).json({message: 'Blog ajouté !'})})
-        .catch(error => { res.status(400).json( { error })})
-    } else {
-        { res.status(401).json({message: "Vous n'êtes pas authorisé avec ce compte!"})}
+    try {
+        BlogModel.create({
+          _id: req.body.id,
+          data: "",
+          title: "",
+          category: "",
+          imageUrl: "./uploads/articles/boite-de-vitesse.jpg",
+        });
+        res.status(200).json({message: "blog created"})
+    } catch {
+        res.status(400).json(error)
     }
+
 }
 
 exports.modifyBlog = (req, res, next) => {

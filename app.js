@@ -14,7 +14,6 @@ const nodemailer = require("nodemailer");
 const auth = require('./middleware/auth');
 const userRoutes = require('./routes/user');
 const blogRoutes = require('./routes/blog');
-const commentRoutes = require('./routes/comment');
 const BlogModel = require("./models/blog");
 
 
@@ -24,49 +23,6 @@ mongoose.connect(process.env.MONGO_SECRET,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
-
-
-// create server with socket.io on port 5001
-const io = require("socket.io").listen("5001", {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
-  },
-});
-
-const defaultValue = "";
-
-io.on("connection", (socket) => {
-  // connect yourself to the server
-  console.log("Listening on port 5001");
-  console.log("Connection à Socket.io réussie");
-  socket.on("get-document", async (documentId) => {
-    const document = await findOrCreateDocument(documentId);
-    socket.join(documentId);
-
-    socket.emit("load-document", document.data);
-    socket.on("send-changes", (delta) => {
-      socket.broadcast.to(documentId).emit("receive-changes", delta);
-    });
-
-    socket.on("save-document", async (data) => {
-      await BlogModel.findByIdAndUpdate(documentId, { data: data.data });
-    });
-  });
-});
-
-async function findOrCreateDocument(id) {
-  if (id == null) return;
-  const document = await BlogModel.findById(id);
-  if (document) return document;
-  return await BlogModel.create({
-    _id: id,
-    data: defaultValue,
-    title: "",
-    category: "",
-    imageUrl: "./uploads/articles/boite-de-vitesse.jpg",
-  });
-}
 
 
 // cors, helmet, cookie parser
@@ -137,7 +93,6 @@ app.get('/jwt', auth, (req, res, next) => {
 
 app.use('/api/user', userRoutes);
 app.use('/api/blog', blogRoutes);
-app.use('/api/comment', commentRoutes);
 app.use("/uploads", express.static('uploads'))
 
 app.post('/api/contact', auth, async (req, res) => {
