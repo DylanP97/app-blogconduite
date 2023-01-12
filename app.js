@@ -26,12 +26,14 @@ mongoose.connect(process.env.MONGO_SECRET,
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 
+  
+  // cors, helmet, cookie parser
+  
+  const app = express();
+  
+  
 app.use('/', express.static('dist'))
-
-// cors, helmet, cookie parser
-
-const app = express();
-
+  
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   credentials: true,
