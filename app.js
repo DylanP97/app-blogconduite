@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const cors = require('cors')
 const jwt = require("jsonwebtoken");
 const path = require('path')
-const helmet = require("helmet");
+// const helmet = require("helmet");
 const { stringify } = require('querystring');
 const nodemailer = require("nodemailer");
 
