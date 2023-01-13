@@ -26,17 +26,15 @@ mongoose.connect(process.env.MONGO_SECRET,
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
 
-  
-  // cors, helmet, cookie parser
+// cors, helmet, cookie parser
   
 const app = express();
   
   
-
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
-  'allowedHeaders': ['sessionId', 'Content-Type', 'Authorization'],
+  origin: '*',
+  'credentials': true,
+  'allowedHeaders': ['sessionId', 'Content-Type', 'Authorization', '*'],
   // 'exposedHeaders': ['sessionId'],
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
   'preflightContinue': false
