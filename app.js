@@ -47,7 +47,7 @@ app.use(express.static("public"))
 app.use(express.urlencoded({ extended: false}))
 
 app.use(bodyParser.json());
-app.use(helmet());
+// app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(cookieParser());
 
@@ -89,6 +89,7 @@ app.use(cookieParser());
 // })
 
 // jwt
+
 app.get('/jwt', auth, (req, res, next) => {
   console.log(res.auth)
   res.status(200).send(res.auth);
