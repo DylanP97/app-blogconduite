@@ -14,20 +14,26 @@ module.exports.signUpErrors = (err) => {
   };
   
   module.exports.signInErrors = (err) => {
+
     let errors = {credentials: ''}
-  
-    if (err.message.includes("email")) 
+
+    if (err.message.includes("email")){
       errors.credentials = "Email ou mot de passe incorrect.";
+      return errors;
+    }
 
-    if (err.message.includes('password'))
+    if (err.message.includes('password')){
       errors.credentials = "Email ou mot de passe incorrect."
+      return errors;
+    }
       
-    if (err.message.includes('not accepted'))
+    if (err.message.includes('not accepted')){
       errors.credentials = "Cet utilisateur n'a pas été encore validé par l'administrateur."
-
-    // else {errors.credentials = "Erreur lors de l'envoi de la requête"}
+      return errors;
+    }
+ 
+    else return;
   
-    return errors;
   }
   
   module.exports.uploadErrors = (err) => {

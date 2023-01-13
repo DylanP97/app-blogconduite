@@ -29,11 +29,10 @@ mongoose.connect(process.env.MONGO_SECRET,
   
   // cors, helmet, cookie parser
   
-  const app = express();
+const app = express();
   
   
-app.use('/', express.static('dist'))
-  
+
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   credentials: true,

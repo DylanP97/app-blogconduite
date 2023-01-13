@@ -87,8 +87,9 @@ exports.login = async (req, res, next) => {
     const token = createToken(user._id);
     res.auth = user._id;
     res.cookie("jwt", token, { httpOnly: false, maxAge });
-    res.data("jwt", token);
-    res.status(200).json({ user: user._id });
+    // res.data({ jwt: token });
+    res.status(200).json({ user: user._id, jwt: token  });
+    
   } catch (err) {
     const errors = signInErrors(err);
     res.status(200).json({ errors });
