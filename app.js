@@ -36,8 +36,9 @@ const app = express();
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   credentials: true,
-  'allowedHeaders': ['sessionId', 'Content-Type'],
-  'exposedHeaders': ['sessionId'],
+  'allowedHeaders': ['sessionId', 'Content-Type', 'Authorization'],
+  // 'exposedHeaders': ['sessionId'],
+  'credentials' : true,
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
   'preflightContinue': false
 }
