@@ -38,7 +38,6 @@ const corsOptions = {
   credentials: true,
   'allowedHeaders': ['sessionId', 'Content-Type', 'Authorization'],
   // 'exposedHeaders': ['sessionId'],
-  'credentials' : true,
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
   'preflightContinue': false
 }
@@ -49,7 +48,7 @@ app.use(express.urlencoded({ extended: false}))
 
 app.use(bodyParser.json());
 // app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+// app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(cookieParser());
 
 
