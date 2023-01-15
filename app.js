@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const cors = require('cors')
 const jwt = require("jsonwebtoken");
 const path = require('path')
-// const helmet = require("helmet");
+const helmet = require("helmet");
 const { stringify } = require('querystring');
 const nodemailer = require("nodemailer");
 
@@ -29,26 +29,27 @@ mongoose.connect(process.env.MONGO_SECRET,
 // cors, helmet, cookie parser
   
 const app = express();
-  
-  
+   
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
   'credentials': true,
-  crossDomain: true,
-  'crossDomain': true,
-  'allowedHeaders': ['sessionId', 'Content-Type', 'Authorization', '*'],
-  // 'exposedHeaders': ['sessionId'],
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  'allowedHeaders': ['sessionId', 'Content-Type', 'Authorization', '*'],
+  'exposedHeaders': ['sessionId'],
   'preflightContinue': false
 }
+
 app.use(cors(corsOptions));
 
 app.use(express.static("public"))
+
 app.use(express.urlencoded({ extended: false}))
 
 app.use(bodyParser.json());
-// app.use(helmet());
-// app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+
 app.use(cookieParser());
 
 
