@@ -206,14 +206,19 @@ exports.updatePassword = async (req, res, next) => {
   );
 };
 
-exports.logout = (req, res) => {
-  // res.clearCookie("jwt");
-  res.cookie("jwt", "none", {
-    expires: new Date(Date.now()),
-    httpOnly: true,
-  });
-  res.status(200)
-  res.json({ success: true, message: 'User logged out successfully' })
+exports.logout = (req, res, next) => {
+  try {
+    // res.clearCookie("jwt");
+    res.cookie("jwt", "none", {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+    });
+    res.status(200)
+    res.json({ message: 'User logged out successfully' })
+  } catch (err) {
+    res.status(200).json({ message: err });
+  }
+
 };
 
 exports.getAllUsers = (req, res, next) => {
