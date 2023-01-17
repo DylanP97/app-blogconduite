@@ -7,11 +7,11 @@ const { signUpErrors, signInErrors } = require("../middleware/errors");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 
-const maxAge = 3 * 24 * 60 * 60 * 1000;
+const threeDays = 3 * 24 * 60 * 60 * 1000;
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.RANDOM_TOKEN_SECRET, {
-    expiresIn: maxAge,
+    expiresIn: threeDays,
   });
 };
 
@@ -90,7 +90,7 @@ exports.login = async (req, res, next) => {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
-      maxAge,
+      threeDays,
     });
     // res.data({ jwt: token });
     res.status(200).json({ user: user._id, jwt: token });
@@ -208,15 +208,11 @@ exports.updatePassword = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   try {
-    // res.clearCookie("jwt");
-    res.cookie("jwt", "none", {
-      expires: new Date(Date.now()),
-      httpOnly: true,
-    });
+    res.clearCookie("jwt");
     res.status(200)
     res.json({ message: 'User logged out successfully' })
   } catch (err) {
-    res.status(200).json({ message: err });
+    res.status(400).json({ message: err });
   }
 
 };
