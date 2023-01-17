@@ -49,18 +49,18 @@ exports.signup = async (req, res, next) => {
 
   const user = await UserModel.findOne({ email: req.body.email });
 
-  var requestSuccess
-  
+  var requestSuccess;
+
   try {
     await UserModel.create({ firstName, lastName, email, password });
     res.status(201).json({ message: "Utilisateur créé !" });
-    requestSuccess = true
+    requestSuccess = true;
   } catch (err) {
     const errors = signUpErrors(err);
     res.status(200).json({ errors });
-    requestSuccess = false
+    requestSuccess = false;
   }
-  
+
   if (requestSuccess) {
     await transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
@@ -86,10 +86,14 @@ exports.login = async (req, res, next) => {
     const user = await UserModel.login(email, password);
     const token = createToken(user._id);
     res.auth = user._id;
-    res.cookie("jwt", token, { httpOnly: true, sameSite: 'None', secure: 'true', maxAge });
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: "true",
+      maxAge,
+    });
     // res.data({ jwt: token });
-    res.status(200).json({ user: user._id, jwt: token  });
-    
+    res.status(200).json({ user: user._id, jwt: token });
   } catch (err) {
     const errors = signInErrors(err);
     res.status(200).json({ errors });
@@ -116,8 +120,7 @@ exports.forgotpassword = async (req, res, next) => {
       { email },
       { ...userObject },
       { new: true, upsert: true, setDefaultsOnInsert: true }
-    )
-    .then((user) => {
+    ).then((user) => {
       // Save the token and expiration date to the database
       user.save().then(() => {
         // Send a password reset email to the user
@@ -136,7 +139,8 @@ exports.forgotpassword = async (req, res, next) => {
           text:
             "Vous recevez ceci parce que vous (ou quelqu'un d'autre) avez demandé la réinitialisation du mot de passe de votre compte.\n\n" +
             "Veuillez cliquer sur le lien suivant ou le coller dans votre navigateur pour terminer le processus :\n\n" +
-            `${process.env.FRONTEND_URL}/reset/${token}` + " " +
+            `${process.env.FRONTEND_URL}/reset/${token}` +
+            " " +
             "Si vous ne l'avez pas demandé, veuillez ignorer cet e-mail et votre mot de passe restera inchangé.\n",
         };
 
@@ -203,8 +207,11 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie("jwt");
-  res.cookie("jwt", " ", { maxAge: 0 });
+  // res.clearCookie("jwt");
+  res.cookie("token", "none", {
+    expires: new Date(Date.now() + 5 * 1000),
+    httpOnly: true,
+  });
 };
 
 exports.getAllUsers = (req, res, next) => {
