@@ -215,8 +215,8 @@ exports.logout = (req, res, next) => {
     //   expires: 0
     // });
     // res.clearCookie("jwt");
-    console.log(req.path)
-    res.clearCookie('jwt', {domain: process.env.FRONTEND_URL, path: req.path});
+    console.log(process.env.FRONTEND_URL)
+    res.clearCookie('jwt', {domain: process.env.FRONTEND_URL, path: '/'});
     res.status(200)
     res.json({ message: 'User logged out successfully' })
   } catch (err) {
