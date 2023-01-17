@@ -208,10 +208,12 @@ exports.updatePassword = async (req, res, next) => {
 
 exports.logout = (req, res) => {
   // res.clearCookie("jwt");
-  res.cookie("token", "none", {
-    expires: new Date(Date.now() + 5 * 1000),
+  res.cookie("jwt", "none", {
+    expires: new Date(Date.now()),
     httpOnly: true,
   });
+  res.status(200)
+  res.json({ success: true, message: 'User logged out successfully' })
 };
 
 exports.getAllUsers = (req, res, next) => {
