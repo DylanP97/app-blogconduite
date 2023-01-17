@@ -203,9 +203,8 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
-  // res.cookie("jwt", " ", { maxAge: 0 });
   res.clearCookie("jwt");
-  res.redirect("/");
+  res.cookie("jwt", " ", { maxAge: 0 });
 };
 
 exports.getAllUsers = (req, res, next) => {
