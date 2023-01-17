@@ -108,7 +108,7 @@ exports.forgotpassword = async (req, res, next) => {
     const token = crypto.randomBytes(20).toString("hex");
 
     const userObject = {
-      resetPasswordToken: token + `If`,
+      resetPasswordToken: token,
       resetPasswordExpires: Date.now() + 3600000, // 1 hour
     };
 
@@ -203,7 +203,8 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
-  res.cookie("jwt", " ", { maxAge: 1 });
+  // res.cookie("jwt", " ", { maxAge: 0 });
+  res.clearCookie("jwt");
   res.redirect("/");
 };
 

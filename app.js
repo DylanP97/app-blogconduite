@@ -92,7 +92,6 @@ app.use(cookieParser());
 // jwt
 
 app.get('/jwt', auth, (req, res, next) => {
-  console.log(res.auth)
   res.status(200).send(res.auth);
   next();
 })

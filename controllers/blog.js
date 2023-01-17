@@ -28,17 +28,20 @@ exports.getOneBlog = (req, res, next) => {
         .catch(error => res.status(200).json({ error }));
 }    
 
-exports.addBlog = (req, res, next) => {
+exports.createBlog = (req, res, next) => {
+
+    console.log(req.body.id)
 
     try {
         BlogModel.create({
-          _id: req.body.id,
-          data: "",
-          title: "",
-          category: "",
-          imageUrl: "./uploads/articles/boite-de-vitesse.jpg",
+            _id: req.body.id,
+            data: "",
+            title: "",
+            category: "",
+            imageUrl: "",
         });
         res.status(200).json({message: "blog created"})
+
     } catch {
         res.status(400).json(error)
     }
@@ -77,7 +80,6 @@ exports.modifyBlog = (req, res, next) => {
 
     BlogModel.findOne({ _id: req.params.id})
         .then((blog) => {
-
             if (req.file){
             fs.unlink(blog.imageUrl, (err) => {
                 if (err) {
