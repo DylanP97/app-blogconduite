@@ -208,19 +208,12 @@ exports.updatePassword = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   try {
-    // res.cookie("jwt", '', {
-    //   httpOnly: true,
-    //   sameSite: "None",
-    //   secure: "true",
-    //   expires: 0
-    // });
-    // res.clearCookie("jwt");
-    console.log(process.env.FRONTEND_URL)
-    res.clearCookie('jwt', {domain: process.env.FRONTEND_URL, path: '/'});
+    res.clearCookie('jwt', { path: '/'});
     res.status(200)
     res.json({ message: 'User logged out successfully' })
-  } catch (err) {
-    res.status(400).json({ message: err });
+  } catch (error) {
+    console.log(error)
+    res.status(400).json(error);
   }
 
 };
