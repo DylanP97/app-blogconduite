@@ -212,6 +212,7 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
+  const user = UserModel.findOne({ _id: req.body.data })
   const token = createToken(user._id);
 
   try {
