@@ -1,13 +1,10 @@
 const BlogModel = require('../models/blog');
-const ObjectID = require("mongoose").Types.ObjectId;
 const fs = require('fs');
 
 
-
-  
-
-
 exports.getAllBlogs = (req, res, next) => {
+
+    // console.log(req)
    
     BlogModel.find().sort({ createdAt: -1 })
         .then((blogs) => res.status(200).json(blogs))
@@ -15,6 +12,8 @@ exports.getAllBlogs = (req, res, next) => {
 }
 
 exports.getAllPublishedBlogs = (req, res, next) => {
+
+    // console.log(req)
    
     BlogModel.find({ published: true}).sort({ createdAt: -1 })
         .then((blogs) => res.status(200).json(blogs))

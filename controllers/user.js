@@ -16,7 +16,10 @@ const createToken = (id) => {
 };
 
 exports.signup = async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
+  const firstName = req.body.firstName.trim();
+  const lastName = req.body.lastName.trim();
+  const email = req.body.email.trim();
+  const { password } = req.body;
 
   const transporter = await nodemailer.createTransport({
     service: "gmail",
@@ -27,27 +30,30 @@ exports.signup = async (req, res, next) => {
   });
 
   const mailOptions = {
-    from: `${req.body.email}`,
+    from: `${email}`,
     to: `${process.env.GMAIL_USER}`,
-    subject: `Nouvelle demande d'inscription de ${req.body.firstName} ${req.body.lastName}`,
-    html: ` <div style="background: #ececec;>
-              <h3 style="padding: 20px; width: 100%">Cette personne a fait une demande d'inscription</h3>
-              <br/>
+    subject: `Nouvelle demande d'inscription de ${firstName} ${lastName}`,
+    html: ` <div>
+              <h3>Un utilisateur a fait une demande d'inscription :</h3>
               <div style="padding: 20px">
-                <p style="margin: 0px 0px 5px 0px">${req.body.firstName}</p>, <p style="margin: 0px 0px 5px 0px">${req.body.lastName}</p>, <p style="margin: 0px 0px 5px 0px">${req.body.email}</p></div>
+                <p style="margin: 0px 0px 5px 0px">${firstName} ${lastName}</p>
+                <p style="margin: 0px 0px 5px 0px">${email}</p>
+                <p style="margin: 0px 0px 5px 0px">Vérifiez avec cet utilisateur son identité</p>
+              </div>
             </div>`,
   };
 
   const mailOptions2 = {
     from: `${process.env.GMAIL_USER}`,
-    to: `${req.body.email}`,
-    subject: `Bonjour ${req.body.firstName}! Votre demande d'inscription a bien été reçue`,
-    html: ` <div style="background: #ececec">
-              <h3 style="padding: 20px; width: 100%">Nous reviendrons très rapidement vers vous valider pour votre inscription.</h3>
+    to: `${email}`,
+    subject: `Bonjour ${firstName}! Votre demande d'inscription a bien été reçue`,
+    html: ` <div>
+              <p>Votre demande d'inscription a bien été reçue.
+              Nous reviendrons très rapidement vers vous pour valider votre inscription.</p>
             </div>`,
   };
 
-  const user = await UserModel.findOne({ email: req.body.email });
+  const user = await UserModel.findOne({ email: email });
 
   var requestSuccess;
 
@@ -208,14 +214,13 @@ exports.updatePassword = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   try {
-    res.clearCookie('jwt', { path: '/'});
-    res.status(200)
-    res.json({ message: 'User logged out successfully' })
+    res.clearCookie("jwt", { path: "/" });
+    res.status(200);
+    res.json({ message: "User logged out successfully" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).json(error);
   }
-
 };
 
 exports.getAllUsers = (req, res, next) => {
