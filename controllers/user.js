@@ -96,7 +96,6 @@ exports.login = async (req, res, next) => {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
-      threeDays,
     });
     // res.data({ jwt: token });
     res.status(200).json({ user: user._id, jwt: token });
@@ -213,8 +212,16 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
+  const token = createToken(user._id);
+
   try {
-    res.clearCookie("jwt", { path: "/" });
+    res.clearCookie("jwt", token, {
+      domain: "https://app-blogconduite-dylanp97.onrender.com/",
+      path: "/",
+      httpOnly: true,
+      sameSite: "None",
+      secure: "true",
+    });
     res.status(200);
     res.json({ message: "User logged out successfully" });
   } catch (error) {
