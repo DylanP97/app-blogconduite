@@ -215,7 +215,7 @@ exports.logout = (req, res, next) => {
   const user = UserModel.findOne({ _id: req.body.data })
   const token = createToken(user._id);
 
-  console.log(user)
+  console.log(user._id)
   console.log(token)
 
   try {
