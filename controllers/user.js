@@ -96,13 +96,32 @@ exports.login = async (req, res, next) => {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
+      threeDays
     });
-    // res.data({ jwt: token });
     res.status(200).json({ user: user._id, jwt: token });
   } catch (err) {
     const errors = signInErrors(err);
     res.status(200).json({ errors });
   }
+};
+
+exports.logout = (req, res, next) => {
+  const user = UserModel.findOne({ _id: req.body.data })
+  const token = createToken(user._id);
+
+  console.log(req.body.data)
+  console.log(token)
+
+  res.cookie('jwt', ' ', { maxAge: 1 });
+  res.redirect('/');
+    // res.clearCookie("jwt", token, {
+    //   domain: "https://app-blogconduite-dylanp97.onrender.com/",
+    //   path: "/",
+    //   httpOnly: true,
+    //   sameSite: "None",
+    //   secure: "true",
+    // });
+    // res.status(200).json({ message: "User logged out successfully" });
 };
 
 exports.forgotpassword = async (req, res, next) => {
@@ -211,29 +230,6 @@ exports.updatePassword = async (req, res, next) => {
   );
 };
 
-exports.logout = (req, res, next) => {
-  const user = UserModel.findOne({ _id: req.body.data })
-  const token = createToken(user._id);
-
-  console.log(user)
-  console.log(token)
-
-  try {
-    res.cookie('jwt', ' ', { maxAge: 1 });
-    // res.redirect('/');
-    res.clearCookie("jwt", token, {
-      // domain: "https://app-blogconduite-dylanp97.onrender.com/",
-      // path: "/",
-      httpOnly: true,
-      sameSite: "None",
-      secure: "true",
-    });
-    res.status(200).json({ message: "User logged out successfully" });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json(error);
-  }
-};
 
 exports.getAllUsers = (req, res, next) => {
   UserModel.find()
