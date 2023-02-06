@@ -109,11 +109,11 @@ exports.logout = (req, res, next) => {
   const user = UserModel.findOne({ _id: req.body.data })
   const token = createToken(user._id);
 
-  console.log(req.body.data)
+  console.log(req.body)
   console.log(token)
 
   res.cookie('jwt', ' ', { maxAge: 1 });
-  res.redirect('/');
+  // res.redirect('/');
     // res.clearCookie("jwt", token, {
     //   domain: "https://app-blogconduite-dylanp97.onrender.com/",
     //   path: "/",
