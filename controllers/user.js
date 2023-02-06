@@ -94,8 +94,8 @@ exports.login = async (req, res, next) => {
     res.auth = user._id;
     res.cookie("jwt", token, {
       httpOnly: false,
-      // sameSite: "None",
-      // secure: "true",
+      sameSite: "None",
+      secure: "true",
       threeDays
     });
     res.status(200).json({ user: user._id, jwt: token });
