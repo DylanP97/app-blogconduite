@@ -215,16 +215,20 @@ exports.logout = (req, res, next) => {
   const user = UserModel.findOne({ _id: req.body.data })
   const token = createToken(user._id);
 
+  console.log(user)
+  console.log(token)
+
   try {
+    res.cookie('jwt', ' ', { maxAge: 1 });
+    res.redirect('/');
     res.clearCookie("jwt", token, {
-      domain: "https://app-blogconduite-dylanp97.onrender.com/",
-      path: "/",
+      // domain: "https://app-blogconduite-dylanp97.onrender.com/",
+      // path: "/",
       httpOnly: true,
       sameSite: "None",
       secure: "true",
     });
-    res.status(200);
-    res.json({ message: "User logged out successfully" });
+    res.status(200).json({ message: "User logged out successfully" });
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
