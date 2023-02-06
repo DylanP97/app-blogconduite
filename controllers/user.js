@@ -107,7 +107,7 @@ exports.login = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   res.cookie('jwt', ' ', { maxAge: 1 });
-  res.redirect('/');
+  // res.redirect('/');
 };
 
 exports.forgotpassword = async (req, res, next) => {
