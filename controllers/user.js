@@ -93,7 +93,7 @@ exports.login = async (req, res, next) => {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
-      expiresIn: threeDays
+      threeDays
     });
     res.status(200).json({ user: user._id, jwt: token });
   } catch (err) {
@@ -104,7 +104,6 @@ exports.login = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   res.clearCookie('jwt');
-  res.status(200);
 };
 
 exports.forgotpassword = async (req, res, next) => {
