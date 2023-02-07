@@ -90,7 +90,7 @@ exports.login = async (req, res, next) => {
     const token = createToken(user._id);
     res.auth = user._id;
     res.cookie("jwt", token, {
-      httpOnly: false,
+      httpOnly: true,
       sameSite: "None",
       secure: "true",
       threeDays
@@ -103,12 +103,8 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-
-  try {
-    res.clearCookie('jwt');
-  } catch (error) {
-   console.log(error) 
-  }
+  res.clearCookie('jwt');
+  res.status(200);
 };
 
 exports.forgotpassword = async (req, res, next) => {
