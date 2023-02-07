@@ -106,15 +106,10 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
+  const token = req.cookies.jwt
   res.locals.user = null;
-  req.cookies.jwt('jwt', ' ', { maxAge: 1 });
-  // console.log(res.cookie.jwt) res.cookie.jwt is undefined
-  // console.log(res.cookie) [Function (anonymous)]
-  // console.log(res.cookies.jwt) res.cookies is undefined
-  // console.log(req.cookie.jwt) req.cookie is undefined
-  // console.log(req.cookies.jwt) token retrieved
-  res.status(200).json({ message: "user logged out"})
-  // res.redirect('/');
+  res.cookie('jwt', token, { maxAge: 1 });
+  res.status(200).json({ message: "user logged out"});
 };
 
 exports.forgotpassword = async (req, res, next) => {
