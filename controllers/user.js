@@ -109,11 +109,7 @@ exports.logout = (req, res, next) => {
 
   res.clearCookie('jwt');
   res.redirect('/');
-
-  // const token = req.cookies.jwt
-  // res.locals.user = null;
-  // res.cookie('jwt', token, { maxAge: 1 });
-  // res.status(200).json({ message: "user logged out" });
+  
 };
 
 exports.forgotpassword = async (req, res, next) => {

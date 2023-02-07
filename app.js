@@ -91,11 +91,6 @@ app.use(cookieParser());
 
 // jwt
 
-app.get('/jwt', auth, (req, res, next) => {
-  res.status(200).send(res.auth);
-  next();
-})
-
 app.use('/api/user', userRoutes);
 app.use('/api/blog', blogRoutes);
 app.use("/uploads", express.static('uploads'))
@@ -131,5 +126,10 @@ app.post('/api/contact', auth, async (req, res) => {
     }
   })
 });
+
+app.get('/jwt', auth, (req, res, next) => {
+  res.status(200).send(res.auth);
+  next();
+})
 
 module.exports = app;
