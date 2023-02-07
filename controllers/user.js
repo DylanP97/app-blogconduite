@@ -108,8 +108,9 @@ exports.login = async (req, res, next) => {
 exports.logout = (req, res, next) => {
   res.locals.user = null;
   res.cookie('jwt', ' ', { maxAge: 1 });
-  console.log(res.cookie.jwt)
-  console.log(res.cookies.jwt)
+  console.log(res.cookie.jwt) // res.cookie.jwt is undefined
+  console.log(res.cookie)
+  // console.log(res.cookies.jwt) res.cookies is undefined
   console.log(req.cookie.jwt)
   console.log(req.cookies.jwt)
   res.status(200).json({ message: "user logged out"})
