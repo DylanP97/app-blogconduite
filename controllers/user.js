@@ -106,10 +106,19 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-  const token = req.cookies.jwt
-  res.locals.user = null;
-  res.cookie('jwt', token, { maxAge: 1 });
-  res.status(200).json({ message: "user logged out"});
+
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).send('Logout failed');
+    } else {
+      res.redirect('/');
+    }
+  });
+
+  // const token = req.cookies.jwt
+  // res.locals.user = null;
+  // res.cookie('jwt', token, { maxAge: 1 });
+  // res.status(200).json({ message: "user logged out" });
 };
 
 exports.forgotpassword = async (req, res, next) => {
