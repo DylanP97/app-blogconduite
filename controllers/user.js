@@ -107,13 +107,8 @@ exports.login = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
 
-  req.session.destroy((err) => {
-    if (err) {
-      res.status(500).send('Logout failed');
-    } else {
-      res.redirect('/');
-    }
-  });
+  res.clearCookie('jwt');
+  res.redirect('/');
 
   // const token = req.cookies.jwt
   // res.locals.user = null;
