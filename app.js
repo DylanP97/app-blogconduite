@@ -1,20 +1,14 @@
 require('dotenv').config()
-const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const cors = require('cors')
-const jwt = require("jsonwebtoken");
-const path = require('path')
 const helmet = require("helmet");
-const { stringify } = require('querystring');
-const nodemailer = require("nodemailer");
 
 const auth = require('./middleware/auth');
 const userRoutes = require('./routes/user');
 const blogRoutes = require('./routes/blog');
-const BlogModel = require("./models/blog");
 
 
 // mongo DB
@@ -91,6 +85,11 @@ app.use(cookieParser());
 
 // jwt
 
+app.get('/jwt', auth, (req, res, next) => {
+  res.status(200).send(res.auth);
+  next();
+})
+
 app.use('/api/user', userRoutes);
 app.use('/api/blog', blogRoutes);
 app.use("/uploads", express.static('uploads'))
@@ -126,10 +125,5 @@ app.post('/api/contact', auth, async (req, res) => {
     }
   })
 });
-
-app.get('/jwt', auth, (req, res, next) => {
-  res.status(200).send(res.auth);
-  next();
-})
 
 module.exports = app;

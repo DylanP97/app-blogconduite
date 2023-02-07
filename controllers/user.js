@@ -1,8 +1,5 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user");
 const ObjectID = require("mongoose").Types.ObjectId;
-const fs = require("fs");
 const { signUpErrors, signInErrors } = require("../middleware/errors");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
@@ -106,10 +103,8 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-
   res.clearCookie('jwt');
-  res.redirect('/');
-  
+  res.status(200);
 };
 
 exports.forgotpassword = async (req, res, next) => {
