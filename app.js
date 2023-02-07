@@ -19,8 +19,6 @@ mongoose.connect(process.env.MONGO_SECRET,
   .then(() => console.log('Connexion à MongoDB réussie !'))
   .catch(() => console.log('Connexion à MongoDB échouée !'));
 
-
-// cors, helmet, cookie parser
   
 const app = express();
    

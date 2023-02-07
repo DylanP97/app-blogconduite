@@ -103,7 +103,7 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-  res.clearCookie('jwt');
+  // res.clearCookie('jwt');
 };
 
 exports.forgotpassword = async (req, res, next) => {
