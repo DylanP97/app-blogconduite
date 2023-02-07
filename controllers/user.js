@@ -1,4 +1,3 @@
-const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user");
 const ObjectID = require("mongoose").Types.ObjectId;
 const { signUpErrors, signInErrors } = require("../middleware/errors");
@@ -91,10 +90,10 @@ exports.login = async (req, res, next) => {
     const token = createToken(user._id);
     res.auth = user._id;
     res.cookie("jwt", token, {
-      httpOnly: false,
+      httpOnly: true,
       sameSite: "None",
       secure: "true",
-      threeDays
+      expiresIn: threeDays
     });
     res.status(200).json({ user: user._id, jwt: token });
   } catch (err) {
@@ -105,7 +104,7 @@ exports.login = async (req, res, next) => {
 
 exports.logout = (req, res, next) => {
   res.clearCookie('jwt');
-  res.redirect('/');
+  res.status(200);
 };
 
 exports.forgotpassword = async (req, res, next) => {
