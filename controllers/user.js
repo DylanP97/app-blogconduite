@@ -106,7 +106,11 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
+  res.locals.user = null;
   res.cookie('jwt', ' ', { maxAge: 1 });
+  console.log(res.locals.user)
+  console.log(res.cookie)
+  res.status(200).json({ message: "user logged out"})
   // res.redirect('/');
 };
 
