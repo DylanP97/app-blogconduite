@@ -103,8 +103,12 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res, next) => {
-  res.clearCookie('jwt');
-  res.status(200);
+
+  try {
+    res.clearCookie('jwt');
+  } catch (error) {
+   console.log(error) 
+  }
 };
 
 exports.forgotpassword = async (req, res, next) => {
