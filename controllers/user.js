@@ -89,6 +89,7 @@ exports.login = async (req, res) => {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
+      expires: "1d"
     });
     res.status(201).json({ message: "Utilisateur log" });
   } catch (err) {
@@ -105,6 +106,7 @@ exports.logout = (req, res) => {
       return res.status(401).json({ error: "Invalid token" });
     }
     req.user = decoded;
+    res.logout();
     res.clearCookie("jwt");
     res.json({ message: "Logout success" });
   });
