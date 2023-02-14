@@ -106,7 +106,6 @@ exports.logout = (req, res) => {
       return res.status(401).json({ error: "Invalid token" });
     }
     req.user = decoded;
-    res.logout();
     res.clearCookie("jwt");
     res.json({ message: "Logout success" });
   });
