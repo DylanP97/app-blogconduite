@@ -89,7 +89,7 @@ exports.login = async (req, res) => {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
-      expires: "1d"
+      maxAge: 24 * 60 * 60 * 1000
     });
     res.status(201).json({ message: "Utilisateur log" });
   } catch (err) {
