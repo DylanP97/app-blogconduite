@@ -3,16 +3,9 @@ const ObjectID = require("mongoose").Types.ObjectId;
 const { signUpErrors, signInErrors } = require("../middleware/errors");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
-const threeDays = 3 * 24 * 60 * 60 * 1000;
-
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.RANDOM_TOKEN_SECRET, {
-    expiresIn: threeDays,
-  });
-};
-
-exports.signup = async (req, res, next) => {
+exports.signup = async (req, res) => {
   const firstName = req.body.firstName.trim();
   const lastName = req.body.lastName.trim();
   const email = req.body.email.trim();
@@ -82,31 +75,42 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-exports.login = async (req, res, next) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await UserModel.login(email, password);
-    const token = createToken(user._id);
+    const payload = { id: user._id, email: user.email };
+    const token = jwt.sign(payload, process.env.RANDOM_TOKEN_SECRET, {
+      expiresIn: "1d",
+    });
     res.auth = user._id;
     res.cookie("jwt", token, {
       httpOnly: true,
       sameSite: "None",
       secure: "true",
-      threeDays
     });
-    res.status(200).json({ user: user._id, jwt: token });
+    res.status(201).json({ message: "Utilisateur log" });
   } catch (err) {
+    console.error(err);
     const errors = signInErrors(err);
     res.status(200).json({ errors });
   }
 };
 
-exports.logout = (req, res, next) => {
-  // res.clearCookie('jwt');
+exports.logout = (req, res) => {
+  const token = req.cookies.jwt;
+  jwt.verify(token, process.env.RANDOM_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    req.user = decoded;
+    res.clearCookie("jwt");
+    res.json({ message: "Logout success" });
+  });
 };
 
-exports.forgotpassword = async (req, res, next) => {
+exports.forgotpassword = async (req, res) => {
   const { email } = req.body;
   // Check if the email exists in the database
   UserModel.findOne({ email }).then((user) => {
@@ -166,7 +170,7 @@ exports.forgotpassword = async (req, res, next) => {
   });
 };
 
-exports.getResetToken = async (req, res, next) => {
+exports.getResetToken = async (req, res) => {
   // Find the user in the database with the matching reset token and expiration date
   UserModel.findOne({ resetPasswordToken: `${req.params.token}` }).then(
     (user) => {
@@ -180,7 +184,7 @@ exports.getResetToken = async (req, res, next) => {
   );
 };
 
-exports.updatePassword = async (req, res, next) => {
+exports.updatePassword = async (req, res) => {
   const { password } = req.body;
 
   // Find the user in the database
@@ -212,22 +216,21 @@ exports.updatePassword = async (req, res, next) => {
   );
 };
 
-
-exports.getAllUsers = (req, res, next) => {
+exports.getAllUsers = (req, res) => {
   UserModel.find()
     .select("-password")
     .then((users) => res.status(200).json(users))
     .catch((error) => res.status(400).json({ error }));
 };
 
-exports.getOneUser = (req, res, next) => {
+exports.getOneUser = (req, res) => {
   UserModel.findOne({ _id: req.params.id })
     .select("-password")
     .then((user) => res.status(200).json(user))
     .catch((error) => res.status(404).json({ error }));
 };
 
-exports.updateUser = async (req, res, next) => {
+exports.updateUser = async (req, res) => {
   const transporter = await nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -284,7 +287,7 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-exports.deleteUser = (req, res, next) => {
+exports.deleteUser = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
