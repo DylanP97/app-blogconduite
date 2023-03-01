@@ -1,23 +1,20 @@
+
+
 const UserModel = require("../models/user");
 const ObjectID = require("mongoose").Types.ObjectId;
 const { signUpErrors, signInErrors } = require("../middleware/errors");
-const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+
+
+const transporter = require("../utils/emails")
+
 
 exports.signup = async (req, res) => {
   const firstName = req.body.firstName.trim();
   const lastName = req.body.lastName.trim();
   const email = req.body.email.trim();
   const { password } = req.body;
-
-  const transporter = await nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: `${process.env.GMAIL_USER}`,
-      pass: `${process.env.PASSWORD}`,
-    },
-  });
 
   const mailOptions = {
     from: `${email}`,
@@ -43,37 +40,18 @@ exports.signup = async (req, res) => {
             </div>`,
   };
 
-  const user = await UserModel.findOne({ email: email });
-
-  var requestSuccess;
-
   try {
     await UserModel.create({ firstName, lastName, email, password });
+    await Promise.all([transporter.sendMail(mailOptions), transporter.sendMail(mailOptions2)]);
     res.status(201).json({ message: "Utilisateur créé !" });
-    requestSuccess = true;
   } catch (err) {
     const errors = signUpErrors(err);
     res.status(200).json({ errors });
-    requestSuccess = false;
-  }
-
-  if (requestSuccess) {
-    await transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
-    await transporter.sendMail(mailOptions2, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
   }
 };
+
+
+
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -99,6 +77,9 @@ exports.login = async (req, res) => {
   }
 };
 
+
+
+
 exports.logout = (req, res) => {
   const token = req.cookies.jwt;
   jwt.verify(token, process.env.RANDOM_TOKEN_SECRET, (err, decoded) => {
@@ -116,6 +97,9 @@ exports.logout = (req, res) => {
     res.json({ message: "Logout success" });
   });
 };
+
+
+
 
 exports.forgotpassword = async (req, res) => {
   const { email } = req.body;
@@ -141,14 +125,6 @@ exports.forgotpassword = async (req, res) => {
       // Save the token and expiration date to the database
       user.save().then(() => {
         // Send a password reset email to the user
-        const transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: `${process.env.GMAIL_USER}`,
-            pass: `${process.env.PASSWORD}`,
-          },
-        });
-
         const mailOptions = {
           from: `${process.env.GMAIL_USER}`,
           to: email,
@@ -177,6 +153,9 @@ exports.forgotpassword = async (req, res) => {
   });
 };
 
+
+
+
 exports.getResetToken = async (req, res) => {
   // Find the user in the database with the matching reset token and expiration date
   UserModel.findOne({ resetPasswordToken: `${req.params.token}` }).then(
@@ -190,6 +169,9 @@ exports.getResetToken = async (req, res) => {
     }
   );
 };
+
+
+
 
 exports.updatePassword = async (req, res) => {
   const { password } = req.body;
@@ -223,12 +205,18 @@ exports.updatePassword = async (req, res) => {
   );
 };
 
+
+
+
 exports.getAllUsers = (req, res) => {
   UserModel.find()
     .select("-password")
     .then((users) => res.status(200).json(users))
     .catch((error) => res.status(400).json({ error }));
 };
+
+
+
 
 exports.getOneUser = (req, res) => {
   UserModel.findOne({ _id: req.params.id })
@@ -237,23 +225,10 @@ exports.getOneUser = (req, res) => {
     .catch((error) => res.status(404).json({ error }));
 };
 
-exports.updateUser = async (req, res) => {
-  const transporter = await nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: `${process.env.GMAIL_USER}`,
-      pass: `${process.env.PASSWORD}`,
-    },
-  });
 
-  const mailValidAccepted = {
-    from: `${process.env.GMAIL_USER}`,
-    to: `${req.body.email}`,
-    subject: `Bonjour ${req.body.firstName}, votre inscription a été validé`,
-    html: ` <div style="background: #ececec;">
-              <h3 style="padding: 20px; width: 100%">Votre demande d'inscription vient d'être valider</h3>
-            </div>`,
-  };
+
+
+exports.updateUser = async (req, res) => {
 
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
@@ -267,6 +242,16 @@ exports.updateUser = async (req, res) => {
     : { ...req.body };
 
   if (req.body.isAccepted == "true") {
+
+    const mailValidAccepted = {
+      from: `${process.env.GMAIL_USER}`,
+      to: `${req.body.email}`,
+      subject: `Bonjour ${req.body.firstName}, votre inscription a été validé`,
+      html: ` <div style="background: #ececec;">
+                <h3 style="padding: 20px; width: 100%">Votre demande d'inscription vient d'être valider</h3>
+              </div>`,
+    };
+
     await transporter.sendMail(mailValidAccepted, function (error, info) {
       if (error) {
         console.log(error);
@@ -293,6 +278,9 @@ exports.updateUser = async (req, res) => {
     }
   }
 };
+
+
+
 
 exports.deleteUser = (req, res) => {
   if (!ObjectID.isValid(req.params.id))

@@ -4,7 +4,6 @@ const validator = require('validator');
 const bcrypt = require('bcrypt');
 const { isEmail } = require('validator');
 
-let emailRegExp = new RegExp('^[a-zA-Z0-9._\-]+[@]{1}(groupomania)+[.]{1}[a-z]{2,10}$');
 let passwordRegExp = new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{6,100}$');
 
 const userSchema = new mongoose.Schema({

@@ -6,6 +6,7 @@ const BlogModel = new Schema({
     title: {type: String},
     category: {type: String},
     _id: String,
+    slug: {type: String},
     data: Object,
     imageUrl: {type: String},
     published: {type: Boolean, default: false}
