@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { generateAccessToken } = require("../utils/generateTokens");
 
 module.exports = (req, res, next) => {
     const authHeader = req.headers.authorization;
