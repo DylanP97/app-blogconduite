@@ -3,7 +3,7 @@ const ObjectID = require("mongoose").Types.ObjectId;
 const { signUpErrors, signInErrors } = require("../middleware/errors");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const { transporter, newSignUpRequest, signUpRequestReceived, resetPasswordLink } = require("../utils/emails")
+const { transporter, newSignUpRequest, signUpRequestReceived, resetPasswordLink, mailValidAccepted } = require("../utils/emails")
 const {generateAccessToken, generateRefreshToken} = require("../utils/generateTokens");
 
 exports.signup = async (req, res) => {
@@ -144,6 +144,10 @@ exports.getOneUser = (req, res) => {
 
 exports.updateUser = async (req, res) => {
 
+  const { email, firstName } = req.body
+
+  console.log(isAdmin)
+
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
@@ -157,14 +161,7 @@ exports.updateUser = async (req, res) => {
 
   if (req.body.isAccepted == "true") {
 
-    const mailValidAccepted = {
-      from: `${process.env.GMAIL_USER}`,
-      to: `${req.body.email}`,
-      subject: `Bonjour ${req.body.firstName}, votre inscription a été validé`,
-      html: ` <div style="background: #ececec;">
-                <h3 style="padding: 20px; width: 100%">Votre demande d'inscription vient d'être valider</h3>
-              </div>`,
-    };
+    const mailValidAccepted = mailValidAccepted(email, firstName);
 
     await transporter.sendMail(mailValidAccepted, function (error, info) {
       if (error) {
@@ -175,7 +172,7 @@ exports.updateUser = async (req, res) => {
     });
   }
 
-  if (res.auth.isAdmin === true) {
+  if (isAdmin === true) {
     UserModel.findOneAndUpdate(
       { _id: req.params.id },
       { ...userObject },
@@ -197,7 +194,7 @@ exports.deleteUser = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
     return res.status(400).send("ID unknown : " + req.params.id);
 
-  if (res.auth.isAdmin === true) {
+  if (isAdmin === true) {
     UserModel.findOneAndDelete({ _id: req.params.id })
       .then(() => {
         res.status(200).json({ message: "Compte supprimé !" });

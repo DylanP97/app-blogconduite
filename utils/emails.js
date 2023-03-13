@@ -65,3 +65,15 @@ module.exports.contactMail = (email, firstName, message) => {
           </div>`
   };
 }
+
+
+module.exports.mailValidAccepted = (email, firstName) => {
+  return {
+    from: `${process.env.GMAIL_USER}`,
+    to: `${email}`,
+    subject: `Bonjour ${firstName}, votre inscription a été validé`,
+    html: ` <div style="background: #ececec;">
+              <h3 style="padding: 20px; width: 100%">Votre demande d'inscription vient d'être valider</h3>
+            </div>`,
+  }
+}

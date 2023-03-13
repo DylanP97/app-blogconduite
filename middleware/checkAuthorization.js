@@ -7,9 +7,7 @@ module.exports = (req, res, next) => {
         try {
             const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
             const isAdmin = decoded.userId.isAdmin;
-            res.auth.isAdmin = isAdmin;
-            console.log(res.auth)
-            next();
+            next(isAdmin);
         } catch (error) {
             res.clearCookie("accessToken")
             res.clearCookie("refreshToken")
