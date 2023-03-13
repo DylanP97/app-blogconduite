@@ -32,8 +32,8 @@ exports.login = async (req, res) => {
     const user = await UserModel.login(email, password);
     const refreshToken = await generateRefreshToken(user);
     const accessToken = await generateAccessToken(user);
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
-    res.cookie('accessToken', accessToken, { httpOnly: true,  secure: true });
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'None' });
+    res.cookie('accessToken', accessToken, { httpOnly: true,  secure: true, sameSite: 'None' });
     res.status(200).json({ message: "Utilisateur log" })
   } catch (err) {
     const errors = signInErrors(err);

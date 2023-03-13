@@ -56,12 +56,12 @@ app.get('/api/verifyRefreshToken', async (req, res) => {
     if (!req.cookies.accessToken) {
       console.log("no access token found, issue a new one")
       const accessToken = await generateAccessToken(decoded.userId);
-      res.cookie('accessToken', accessToken, { httpOnly: true });
+      res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'None' });
       res.status(200).json({ userId: decoded.userId._id, isAdmin: decoded.userId.isAdmin, accessToken: `${accessToken}` })
     } else if (Date.now() >= expirationTime * 1000) {
       console.log("access token has expired, issue a new one")
       const accessToken = await generateAccessToken(decoded.userId);
-      res.cookie('accessToken', accessToken, { httpOnly: true });
+      res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'None' });
       res.status(200).json({ userId: decoded.userId._id, isAdmin: decoded.userId.isAdmin, accessToken: `${accessToken}` })
     } else {
       res.status(200).json({ userId: decoded.userId._id, isAdmin: decoded.userId.isAdmin, accessToken: `${req.cookies.accessToken}` })
