@@ -5,7 +5,9 @@ module.exports = (req, res, next) => {
     if (authHeader) {
         let accessToken = authHeader.split(' ')[1];
         try {
-            jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+            const decoded = jwt.verify(accessToken, process.env.JWT_ACCESS_SECRET);
+            const isAdmin = decoded.userId.isAdmin;
+            res.auth.isAdmin = isAdmin;
             next();
         } catch (error) {
             res.clearCookie("accessToken")
