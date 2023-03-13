@@ -1,14 +1,10 @@
-
-
 const UserModel = require("../models/user");
 const ObjectID = require("mongoose").Types.ObjectId;
 const { signUpErrors, signInErrors } = require("../middleware/errors");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-
-
-const transporter = require("../utils/emails")
-
+const { transporter, newSignUpRequest, signUpRequestReceived, resetPasswordLink } = require("../utils/emails")
+const {generateAccessToken, generateRefreshToken} = require("../utils/generateTokens");
 
 exports.signup = async (req, res) => {
   const firstName = req.body.firstName.trim();
@@ -16,33 +12,12 @@ exports.signup = async (req, res) => {
   const email = req.body.email.trim();
   const { password } = req.body;
 
-  const mailOptions = {
-    from: `${email}`,
-    to: `${process.env.GMAIL_USER}`,
-    subject: `Nouvelle demande d'inscription de ${firstName} ${lastName}`,
-    html: ` <div>
-              <h3>Un utilisateur a fait une demande d'inscription :</h3>
-              <div style="padding: 20px">
-                <p style="margin: 0px 0px 5px 0px">${firstName} ${lastName}</p>
-                <p style="margin: 0px 0px 5px 0px">${email}</p>
-                <p style="margin: 0px 0px 5px 0px">Vérifiez avec cet utilisateur son identité</p>
-              </div>
-            </div>`,
-  };
-
-  const mailOptions2 = {
-    from: `${process.env.GMAIL_USER}`,
-    to: `${email}`,
-    subject: `Bonjour ${firstName}! Votre demande d'inscription a bien été reçue`,
-    html: ` <div>
-              <p>Votre demande d'inscription a bien été reçue.
-              Nous reviendrons très rapidement vers vous pour valider votre inscription.</p>
-            </div>`,
-  };
+  const mailOne = newSignUpRequest(email, firstName, lastName)
+  const mailTwo = signUpRequestReceived(email, firstName, lastName)
 
   try {
     await UserModel.create({ firstName, lastName, email, password });
-    await Promise.all([transporter.sendMail(mailOptions), transporter.sendMail(mailOptions2)]);
+    await Promise.all([transporter.sendMail(mailOne), transporter.sendMail(mailTwo)]);
     res.status(201).json({ message: "Utilisateur créé !" });
   } catch (err) {
     const errors = signUpErrors(err);
@@ -50,68 +25,38 @@ exports.signup = async (req, res) => {
   }
 };
 
-
-
-
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await UserModel.login(email, password);
-    const payload = { id: user._id, email: user.email };
-    const token = jwt.sign(payload, process.env.RANDOM_TOKEN_SECRET, {
-      expiresIn: "1d",
-    });
-    res.auth = user._id;
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: "true",
-      maxAge: 24 * 60 * 60 * 1000
-    });
-    res.status(201).json({ message: "Utilisateur log" });
+    const refreshToken = await generateRefreshToken(user);
+    const accessToken = await generateAccessToken(user);
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true });
+    res.cookie('accessToken', accessToken, { httpOnly: true,  secure: true });
+    res.status(200).json({ message: "Utilisateur log" })
   } catch (err) {
-    console.error(err);
     const errors = signInErrors(err);
+    console.log(err)
     res.status(200).json({ errors });
   }
 };
 
-
-
-
 exports.logout = (req, res) => {
-  const token = req.cookies.jwt;
-  jwt.verify(token, process.env.RANDOM_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-    req.user = decoded;
-    res.cookie("jwt", token, {
-      httpOnly: true,
-      sameSite: "None",
-      secure: "true",
-      maxAge: 1
-    });    
-    res.clearCookie("jwt");
-    res.json({ message: "Logout success" });
-  });
+  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken");
+  res.status(200).json({ message: "logout success" })
 };
-
-
-
 
 exports.forgotpassword = async (req, res) => {
   const { email } = req.body;
-  // Check if the email exists in the database
+
   UserModel.findOne({ email }).then((user) => {
     if (!user) {
       return res.status(200).json({ message: "Email not found" });
     }
 
-    // Generate a password reset token
     const token = crypto.randomBytes(20).toString("hex");
-
     const userObject = {
       resetPasswordToken: token,
       resetPasswordExpires: Date.now() + 3600000, // 1 hour
@@ -122,22 +67,9 @@ exports.forgotpassword = async (req, res) => {
       { ...userObject },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     ).then((user) => {
-      // Save the token and expiration date to the database
       user.save().then(() => {
-        // Send a password reset email to the user
-        const mailOptions = {
-          from: `${process.env.GMAIL_USER}`,
-          to: email,
-          subject: "Réinitialisation de votre mot de passe.",
-          text:
-            "Vous recevez ceci parce que vous (ou quelqu'un d'autre) avez demandé la réinitialisation du mot de passe de votre compte.\n\n" +
-            "Veuillez cliquer sur le lien suivant ou le coller dans votre navigateur pour terminer le processus :\n\n" +
-            `${process.env.FRONTEND_URL}/reset/${token}` +
-            " " +
-            "Si vous ne l'avez pas demandé, veuillez ignorer cet e-mail et votre mot de passe restera inchangé.\n",
-        };
-
-        transporter.sendMail(mailOptions, (error) => {
+        const mail3 = resetPasswordLink(email, token)
+        transporter.sendMail(mail3, (error) => {
           if (error) {
             return res.status(500).json({ message: "Error sending email" });
           }
@@ -153,11 +85,7 @@ exports.forgotpassword = async (req, res) => {
   });
 };
 
-
-
-
 exports.getResetToken = async (req, res) => {
-  // Find the user in the database with the matching reset token and expiration date
   UserModel.findOne({ resetPasswordToken: `${req.params.token}` }).then(
     (user) => {
       if (!user) {
@@ -170,13 +98,9 @@ exports.getResetToken = async (req, res) => {
   );
 };
 
-
-
-
 exports.updatePassword = async (req, res) => {
   const { password } = req.body;
 
-  // Find the user in the database
   UserModel.findOne({ resetPasswordToken: `${req.params.token}` }).then(
     (user) => {
       if (!user) {
@@ -196,7 +120,6 @@ exports.updatePassword = async (req, res) => {
         { ...userObject },
         { new: true, upsert: true, setDefaultsOnInsert: true }
       ).then((user) => {
-        // Save the updated user to the database
         user.save().then(() => {
           res.json({ message: "Password changed successfully" });
         });
@@ -205,9 +128,6 @@ exports.updatePassword = async (req, res) => {
   );
 };
 
-
-
-
 exports.getAllUsers = (req, res) => {
   UserModel.find()
     .select("-password")
@@ -215,18 +135,12 @@ exports.getAllUsers = (req, res) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
-
-
-
 exports.getOneUser = (req, res) => {
   UserModel.findOne({ _id: req.params.id })
     .select("-password")
     .then((user) => res.status(200).json(user))
     .catch((error) => res.status(404).json({ error }));
 };
-
-
-
 
 exports.updateUser = async (req, res) => {
 
@@ -278,9 +192,6 @@ exports.updateUser = async (req, res) => {
     }
   }
 };
-
-
-
 
 exports.deleteUser = (req, res) => {
   if (!ObjectID.isValid(req.params.id))
